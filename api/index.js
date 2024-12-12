@@ -2,47 +2,56 @@ import puppeteer from 'puppeteer';
 
 export default async function handler(req, res) {
   try {
-    // Launch a headless browser
+    // Fetch the environment variables from the environment (Vercel or local dev environment)
+    const username = process.env.TENNIS_CENTER_USERNAME;
+    const password = process.env.TENNIS_CENTER_PASSWORD;
+    const loginUrl = process.env.TENNIS_CENTER_URL;
+
+    if (!username || !password || !loginUrl) {
+      return res.status(500).json({ error: 'Missing environment variables for login' });
+    }
+
+    // Launch a headless browser using Puppeteer
     const browser = await puppeteer.launch({ headless: true });
 
-    // Open a new page
+    // Open a new page in the browser
     const page = await browser.newPage();
 
-    // Go to the tennis center's login page (replace with actual URL)
-    await page.goto('https://example-tennis-center.com/login');
+    // Navigate to the tennis center's login page
+    await page.goto(loginUrl);
 
     // Fill in the login form with the username and password
-    await page.type('#username', req.body.username);  // Replace with actual input selector
-    await page.type('#password', req.body.password);  // Replace with actual input selector
+    await page.type('#username', username);  // Replace with actual input selector for username
+    await page.type('#password', password);  // Replace with actual input selector for password
 
-    // Submit the login form (replace with actual selector)
+    // Submit the login form
     await Promise.all([
-      page.click('#loginButton'),
+      page.click('#loginButton'),  // Replace with actual login button selector
       page.waitForNavigation(),
     ]);
 
-    // Check if login was successful (this is just an example, you should adjust to your case)
+    // Check if login was successful
     const loginSuccess = await page.evaluate(() => {
-      return document.querySelector('.welcome-message') !== null;  // Example selector
+      return document.querySelector('.welcome-message') !== null;  // Example selector for welcome message
     });
 
     if (!loginSuccess) {
       return res.status(401).json({ error: 'Login failed. Please check your credentials.' });
     }
 
-    // After login, navigate to the booking page (replace with actual URL)
-    await page.goto('https://example-tennis-center.com/booking');
+    // After successful login, navigate to the booking page (adjust URL as needed)
+    await page.goto('https://example-tennis-center.com/booking');  // Replace with actual booking page URL
 
-    // Select available timeslots and book one (this is just an example, adjust to actual page structure)
-    await page.click('.available-time-slot'); // Replace with actual selector for available slots
+    // Select available time slots and book one (adjust the selector as needed)
+    await page.click('.available-time-slot');  // Example selector for available time slots
 
-    // Confirm the booking (replace with actual selector)
-    await page.click('#confirm-booking');
+    // Confirm the booking (replace with actual confirm button selector)
+    await page.click('#confirm-booking');  // Replace with actual confirm booking button
 
-    // Wait for the confirmation page
+    // Wait for the confirmation page to appear
     await page.waitForSelector('.confirmation-message');  // Replace with actual confirmation selector
 
-    // Grab the confirmation message
+    // Grab the confirmation message from the page
     const confirmationMessage = await page.evaluate(() => {
       return document.querySelector('.confirmation-message').innerText;
     });
