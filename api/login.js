@@ -23,29 +23,30 @@ export default async function handler(req, res) {
     const loginResponse = await fetch(loginUrl, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: params
+      body: params,
     });
 
     if (!loginResponse.ok) {
-      const errorResponse = await loginResponse.json();
-      return res.status(loginResponse.status).json({ 
-        message: 'Failed to log in to tennis center', 
-        error: errorResponse 
+      const errorResponse = await loginResponse.text();
+      console.error('Login failed:', errorResponse);  // Log the error to Vercel logs
+      return res.status(loginResponse.status).json({
+        message: 'Failed to log in to tennis center',
+        error: errorResponse,
       });
     }
 
     const loginData = await loginResponse.json();
-    res.status(200).json({ 
-      message: 'Login successful', 
-      username: loginData.username 
+    res.status(200).json({
+      message: 'Login successful',
+      username: loginData.username,
     });
-
   } catch (error) {
-    res.status(500).json({ 
-      message: 'An unexpected error occurred', 
-      error: error.message 
+    console.error('Error during login:', error);  // Log the error to Vercel logs
+    res.status(500).json({
+      message: 'An unexpected error occurred',
+      error: error.message || error,
     });
   }
 }
