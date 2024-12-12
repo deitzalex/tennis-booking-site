@@ -1,31 +1,42 @@
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Only POST requests are allowed' });
-const params = new URLSearchParams();
-params.append('username', username);
-params.append('password', password);
+  }
 
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res.status(400).json({ message: 'Username and password are required' });
   }
 
   try {
-    // Replace this URL with the URL of the tennis center login page
-    const loginUrl = process.env.TENNIS_LOGIN_URL; 
+    const loginUrl = process.env.TENNIS_LOGIN_URL;
 
-const loginResponse = await fetch(loginUrl, {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/x-www-form-urlencoded'
-  },
-  body: params
-});
-
-    const loginData = await loginResponse.json();
-
-    if (!loginResponse.ok) {
-      return res.status(401).json({ message: 'Invalid login credentials' });
+    if (!loginUrl) {
+      throw new Error('Missing TENNIS_LOGIN_URL environment variable.');
     }
 
-    // Respond with user info or success message
+    const params = new URLSearchParams();
+    params.append('username', username);
+    params.append('password', password);
+
+    const loginResponse = await fetch(loginUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: params
+    });
+
+    if (!loginResponse.ok) {
+      const errorResponse = await loginResponse.json();
+      return res.status(loginResponse.status).json({ 
+        message: 'Failed to log in to tennis center', 
+        error: errorResponse 
+      });
+    }
+
+    const loginData = await loginResponse.json();
     res.status(200).json({ 
       message: 'Login successful', 
       username: loginData.username 
@@ -33,9 +44,8 @@ const loginResponse = await fetch(loginUrl, {
 
   } catch (error) {
     res.status(500).json({ 
-      message: 'Something went wrong', 
+      message: 'An unexpected error occurred', 
       error: error.message 
     });
   }
 }
-
