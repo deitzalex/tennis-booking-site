@@ -1,29 +1,23 @@
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Only POST requests are allowed' });
-  }
+const params = new URLSearchParams();
+params.append('username', username);
+params.append('password', password);
 
-  const { username, password } = req.body;
-
-  // Check if both username and password were sent
-  if (!username || !password) {
-    return res.status(400).json({ message: 'Username and password are required' });
   }
 
   try {
     // Replace this URL with the URL of the tennis center login page
     const loginUrl = process.env.TENNIS_LOGIN_URL; 
 
-    const loginResponse = await fetch(loginUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ 
-        username: username, 
-        password: password 
-      })
-    });
+const loginResponse = await fetch(loginUrl, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded'
+  },
+  body: params
+});
 
     const loginData = await loginResponse.json();
 
