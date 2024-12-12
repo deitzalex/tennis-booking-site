@@ -1,24 +1,34 @@
-// User clicks 'Login' button
-document.getElementById('login-button').addEventListener('click', () => {
+// User clicks 'Request Booking' button
+document.getElementById('book-now').addEventListener('click', async () => {
   const username = document.getElementById('username').value;
-  if (username) {
-    alert(`Welcome, ${username}!`);
-    document.getElementById('login-form').style.display = 'none';
-    document.getElementById('booking-section').style.display = 'block';
-  } else {
-    alert('Please enter your Tennis Court login.');
-  }
-});
-
-// User submits a booking request
-document.getElementById('book-now').addEventListener('click', () => {
   const date = document.getElementById('booking-date').value;
   const time = document.getElementById('booking-time').value;
 
-  if (date && time) {
-    alert(`Requesting a booking for ${date} at ${time}...`);
-  } else {
-    alert('Please select a date and time for your booking.');
+  if (!username || !date || !time) {
+    alert('Please provide all booking information.');
+    return;
+  }
+
+  try {
+    const response = await fetch('/api/book', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        loginUsername: username, 
+        bookingDate: date, 
+        bookingTime: time 
+      })
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      alert('Booking was successful!');
+    } else {
+      alert('Booking failed: ' + result.message);
+    }
+  } catch (error) {
+    alert('An error occurred: ' + error.message);
   }
 });
 
