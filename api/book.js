@@ -1,24 +1,27 @@
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Only POST requests allowed' });
+    return res.status(405).json({ message: 'Only POST requests are allowed' });
   }
 
+  // Get user input from the frontend (username, booking date, and time)
   const { bookingDate, bookingTime } = req.body;
 
+  // Check if the required information is present
   if (!bookingDate || !bookingTime) {
     return res.status(400).json({ message: 'Missing required fields' });
   }
 
   try {
-    // Log in to the tennis website
-    const loginResponse = await fetch(`${process.env.TENNIS_API_URL}/login`, {
+    // STEP 1: Log in to the tennis website
+    const loginUrl = process.env.TENNIS_LOGIN_URL; // Environment variable for login URL
+    const loginResponse = await fetch(loginUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ 
         username: process.env.TENNIS_USERNAME, 
-        password: process.env.TENNIS_PASSWORD 
+        password: process.env.TENNIS_PASSWORD
       })
     });
 
@@ -28,14 +31,15 @@ export default async function handler(req, res) {
       throw new Error('Failed to log in');
     }
 
-    const token = loginData.token; 
+    const token = loginData.token; // Example: Assume login gives us a token
 
-    // Send a request to book the court
-    const bookingResponse = await fetch(`${process.env.TENNIS_API_URL}/bookings`, {
+    // STEP 2: Book the court
+    const bookingUrl = process.env.TENNIS_BOOKING_URL; // Environment variable for booking URL
+    const bookingResponse = await fetch(bookingUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${token}` // Pass the token from login as a header
       },
       body: JSON.stringify({
         date: bookingDate,
