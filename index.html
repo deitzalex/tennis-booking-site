@@ -1,1 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tennis Booking</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Welcome to the Tennis Booking System</h1>
+  
+  <!-- Login Form -->
+  <div id="login-form">
+    <h2>Login to Access the Calendar</h2>
+    <input type="text" id="username" placeholder="Enter Tennis Court Login">
+    <button id="login-button">Submit</button>
+  </div>
 
+  <!-- Calendar Booking (only appears after login) -->
+  <div id="booking-section" style="display: none;">
+    <h2>Select a Date and Time</h2>
+    <input type="date" id="booking-date">
+    <input type="time" id="booking-time">
+    <button id="book-now">Request Booking</button>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
